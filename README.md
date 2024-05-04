@@ -1,5 +1,16 @@
 # CountryApp
 
+App that uses an api to search by country, capital or region 
+(using angular)
+
+Api taken from 'REST Countries' 
+
+--Conocimiento de rutas principales, rutas hijas, observables, operadores,
+funciones generadores de observables como 'of', como renderizar tablas, 
+como manejar informacion, obtener valores de url, utilizar switchMap,
+mostrar imagenes en svg, iconos
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.2.
 
 ## Development server
