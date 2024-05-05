@@ -1,14 +1,49 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, delay, map, of, tap } from 'rxjs';
 import { Country } from '../interfaces/country';
+import { CacheStore } from '../interfaces/cache-store.interface';
+import { Region } from '../interfaces/region.type';
+
 
 @Injectable({providedIn: 'root'})
-export class CountriesService {
+export class CountriesService{
 
   private apiUrl:string = 'https://restcountries.com/v3.1';
 
-  constructor(private http: HttpClient) { }
+  public cacheStore:CacheStore = {
+    byCapital: {term:'', countries: []},
+    byCountries: {term:'', countries: []},
+    byRegion:{region:'', countries: []},
+  }
+
+
+  constructor(private http: HttpClient) {
+    this.LoadFromLocalStorage();
+
+  }
+
+
+
+  private saveToLocalStorage(){
+    localStorage.setItem('cacheStore',JSON.stringify(this.cacheStore));
+  }
+
+  private LoadFromLocalStorage(){
+    if(!localStorage.getItem('cacheStore'))return;
+
+    this.cacheStore = JSON.parse(localStorage.getItem('cacheStore')!);
+
+  }
+
+  private getCountriesRequest(url:string):Observable<Country[]>{
+    return this.http.get<Country[]>(url)
+    .pipe(
+      catchError(()=>of([])),
+      //el debouncer ahora tiene el delay
+      delay(350)
+    );
+  }
 
 
   searchCountryByAlphaCode(code:string):Observable<Country | null>{
@@ -33,12 +68,11 @@ export class CountriesService {
 
     //metodo de observable pipe
     //! el subscribe viene al final del pipe
-
-
-    return this.http.get<Country[]>(url).pipe(
-      //en caso de error por parte de la peticion
-      //retornamos un arreglo vacio
-      catchError(() => of([]))
+    return this.getCountriesRequest(url)
+    .pipe(
+      tap( (countries) => this.cacheStore.byCapital = {term:term, countries: countries}),
+      //aqui ya se actualizo el cache y solo falta guardar en localstorage
+      tap(()=>this.saveToLocalStorage())
     );
   }
 
@@ -46,20 +80,25 @@ export class CountriesService {
 
     const url = `${this.apiUrl}/name/${term}`;
 
-    return this .http.get<Country[]>(url)
+    return this.getCountriesRequest(url)
     .pipe(
-      catchError(()=>of([]))
+      tap( (countries) => this.cacheStore.byCountries = {term:term, countries: countries}),
+      //no es conveniente llamar la funcion asi tap(this.saveToLocalStorage())
+      //debido a que se rompe la relacion a lo que apunta this
+      tap(()=>this.saveToLocalStorage())
     );
+
   }
 
 
-  searchRegion(term:string):Observable<Country[]>{
+  searchRegion(region:Region):Observable<Country[]>{
 
-    const url = `${this.apiUrl}/region/${term}`;
+    const url = `${this.apiUrl}/region/${region}`;
 
-    return this .http.get<Country[]>(url)
+    return this.getCountriesRequest(url)
     .pipe(
-      catchError(()=>of([]))
+      tap( (countries) => this.cacheStore.byRegion = {region:region, countries: countries}),
+      tap(()=>this.saveToLocalStorage())
     );
 
   }

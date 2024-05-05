@@ -5,10 +5,16 @@ App that uses an api to search by country, capital or region
 
 Api taken from 'REST Countries' 
 
+Commit 1
 --Conocimiento de rutas principales, rutas hijas, observables, operadores,
 funciones generadores de observables como 'of', como renderizar tablas, 
 como manejar informacion, obtener valores de url, utilizar switchMap,
 mostrar imagenes en svg, iconos
+
+Commit 2
+--Se agregan mejoras en la aplicacion, seleccion de regiones controladas,
+persistencia de los datos mediante un cache creado en el servicio para el input y cambio entre rutas, ademas de agregar localstorage para cuando se vuelva a recargar el navegador,
+uso del debouncer, limpieza de suscripciones, componente agregado de loading cuando se busquen peticiones dependiendo de si es una region, pais o capital
 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.2.

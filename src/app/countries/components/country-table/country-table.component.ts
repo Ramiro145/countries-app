@@ -13,4 +13,7 @@ import { Country } from '../../interfaces/country';
 export class CountryTableComponent {
   @Input()
   public countries:Country[] = []
+
+  @Input()
+  public zona!:string;
 }
